@@ -1,0 +1,441 @@
+{
+  "intents": [
+    {
+      "intent": "agendamento",
+      "examples": [
+        {
+          "text": "agendamento para"
+        },
+        {
+          "text": "marcar para"
+        },
+        {
+          "text": "para"
+        },
+        {
+          "text": "quero marcar no dia"
+        },
+        {
+          "text": ":Raio-X"
+        },
+        {
+          "text": ":Ressonância Magnética"
+        },
+        {
+          "text": ":Ultrassom"
+        }
+      ],
+      "description": "marcando data e hora"
+    },
+    {
+      "intent": "Pedido",
+      "examples": [
+        {
+          "text": "Me ve um exame"
+        },
+        {
+          "text": "olá, preciso de um exame"
+        },
+        {
+          "text": "Olá, quero marcar um exame"
+        },
+        {
+          "text": "preciso de um exame, por favor?"
+        },
+        {
+          "text": "preciso marcar exame"
+        }
+      ],
+      "description": "Efetuar pedido de exame"
+    }
+  ],
+  "entities": [
+    {
+      "entity": "data",
+      "values": [
+        {
+          "type": "patterns",
+          "value": "data",
+          "patterns": [
+            "%d-%m-%Y",
+            "%d/%m/%Y"
+          ]
+        }
+      ],
+      "fuzzy_match": true
+    },
+    {
+      "entity": "exames",
+      "values": [
+        {
+          "type": "synonyms",
+          "value": "Raio-X",
+          "synonyms": [
+            "raio",
+            "Raio X",
+            "RaioX"
+          ]
+        },
+        {
+          "type": "synonyms",
+          "value": "Ressonância Magnética",
+          "synonyms": [
+            "magnetica",
+            "resonancia",
+            "ressonancia"
+          ]
+        },
+        {
+          "type": "synonyms",
+          "value": "Ultrassom",
+          "synonyms": [
+            "ultra som",
+            "ultra-som",
+            "utra som"
+          ]
+        }
+      ],
+      "fuzzy_match": true
+    },
+    {
+      "entity": "hora",
+      "values": [
+        {
+          "type": "patterns",
+          "value": "hora",
+          "patterns": [
+            "%h/m%/s%"
+          ]
+        }
+      ],
+      "fuzzy_match": true
+    },
+    {
+      "entity": "sim-nao",
+      "values": [
+        {
+          "type": "synonyms",
+          "value": "nao",
+          "synonyms": [
+            "n",
+            "não",
+            "no"
+          ]
+        },
+        {
+          "type": "synonyms",
+          "value": "sim",
+          "synonyms": [
+            "s",
+            "si"
+          ]
+        }
+      ],
+      "fuzzy_match": true
+    },
+    {
+      "entity": "sys-date",
+      "values": []
+    },
+    {
+      "entity": "sys-time",
+      "values": []
+    }
+  ],
+  "metadata": {
+    "api_version": {
+      "major_version": "v2",
+      "minor_version": "2018-11-08"
+    }
+  },
+  "dialog_nodes": [
+    {
+      "type": "standard",
+      "title": "Bem-vindo",
+      "output": {
+        "generic": [
+          {
+            "values": [
+              {
+                "text": "Bem vindo ao Laboratório Health"
+              }
+            ],
+            "response_type": "text",
+            "selection_policy": "sequential"
+          },
+          {
+            "values": [
+              {
+                "text": "Laboratório Health, como posso te ajudar?"
+              }
+            ],
+            "response_type": "text",
+            "selection_policy": "sequential"
+          }
+        ]
+      },
+      "conditions": "welcome",
+      "dialog_node": "Bem-vindo"
+    },
+    {
+      "type": "standard",
+      "title": "Em outros casos",
+      "output": {
+        "generic": [
+          {
+            "values": [
+              {
+                "text": "Eu não entendi. Você pode tentar reformular a frase."
+              },
+              {
+                "text": "Você pode reformular sua afirmação? Eu não estou entendendo."
+              },
+              {
+                "text": "Eu não entendi o sentido."
+              },
+              {
+                "text": "Você poderia repetir, por favor?"
+              }
+            ],
+            "response_type": "text",
+            "selection_policy": "random"
+          }
+        ]
+      },
+      "conditions": "anything_else",
+      "dialog_node": "Em outros casos",
+      "previous_sibling": "node_1_1680043064528",
+      "disambiguation_opt_out": true
+    },
+    {
+      "type": "standard",
+      "output": {
+        "generic": [
+          {
+            "values": [
+              {
+                "text": "Os exames disponíveis são:"
+              }
+            ],
+            "response_type": "text",
+            "selection_policy": "sequential"
+          },
+          {
+            "title": "Exames:",
+            "options": [
+              {
+                "label": "Ultrassom",
+                "value": {
+                  "input": {
+                    "text": "@exames:Ultrassom"
+                  }
+                }
+              },
+              {
+                "label": "Ressonância Magnética",
+                "value": {
+                  "input": {
+                    "text": "@exames:Ressonância Magnética"
+                  }
+                }
+              },
+              {
+                "label": "Raio-X",
+                "value": {
+                  "input": {
+                    "text": "@exames:Raio-X"
+                  }
+                }
+              }
+            ],
+            "response_type": "option"
+          }
+        ]
+      },
+      "conditions": "#Pedido",
+      "dialog_node": "node_1_1680043064528",
+      "previous_sibling": "node_3_1680044739834"
+    },
+    {
+      "type": "standard",
+      "output": {
+        "generic": [
+          {
+            "title": "Você quer agendar $exame_escolhido para @sys-date as @sys-time? ",
+            "options": [
+              {
+                "label": "sim",
+                "value": {
+                  "input": {
+                    "text": "@sim-nao:sim"
+                  }
+                }
+              },
+              {
+                "label": "não",
+                "value": {
+                  "input": {
+                    "text": "@sim-nao:nao"
+                  }
+                }
+              }
+            ],
+            "response_type": "option"
+          }
+        ]
+      },
+      "parent": "node_4_1680043959577",
+      "context": {
+        "data_digitada": "@sys-date",
+        "hora_escolhida": "@sys-time"
+      },
+      "conditions": "@sys-date && @sys-time || #agendamento",
+      "dialog_node": "node_1_1680045951954"
+    },
+    {
+      "type": "standard",
+      "next_step": {
+        "behavior": "jump_to",
+        "selector": "user_input",
+        "dialog_node": "node_4_1680043959577"
+      },
+      "conditions": "#Pedido && @exames",
+      "dialog_node": "node_3_1680044739834",
+      "previous_sibling": "Bem-vindo"
+    },
+    {
+      "type": "standard",
+      "title": "Mensagem final",
+      "output": {
+        "generic": [
+          {
+            "values": [
+              {
+                "text": "Tenha um ótimo dia."
+              }
+            ],
+            "response_type": "text",
+            "selection_policy": "random"
+          }
+        ]
+      },
+      "parent": "node_1_1680045951954",
+      "conditions": "",
+      "dialog_node": "node_3_1680796100702",
+      "previous_sibling": "node_8_1680737461598"
+    },
+    {
+      "type": "standard",
+      "output": {
+        "generic": [
+          {
+            "values": [
+              {
+                "text": "Certo, me informe a data e horário que você gostaria de agendar o exame de $exame_escolhido"
+              }
+            ],
+            "response_type": "text",
+            "selection_policy": "sequential"
+          }
+        ]
+      },
+      "parent": "node_1_1680043064528",
+      "context": {
+        "exame_escolhido": "@exames.literal"
+      },
+      "conditions": "@exames:Raio-X ||  @exames:(Ressonância Magnética) || @exames:Ultrassom",
+      "dialog_node": "node_4_1680043959577"
+    },
+    {
+      "type": "standard",
+      "output": {
+        "generic": [
+          {
+            "values": [
+              {
+                "text": "Certo, seu exame de $exame_escolhido foi agendado para data $data_digitada as $hora_escolhida horas! Obrigada por escolher o Laboratório Health."
+              },
+              {
+                "text": "Ok, o seu exame de $exame_escolhido foi agendado para data $data_digitada as $hora_escolhida horas! Obrigada por escolher o Laboratório Health."
+              }
+            ],
+            "response_type": "text",
+            "selection_policy": "random"
+          }
+        ]
+      },
+      "parent": "node_1_1680045951954",
+      "context": {},
+      "next_step": {
+        "behavior": "jump_to",
+        "selector": "body",
+        "dialog_node": "node_3_1680796100702"
+      },
+      "conditions": "@sim-nao:sim",
+      "dialog_node": "node_6_1680737280835"
+    },
+    {
+      "type": "standard",
+      "output": {
+        "generic": [
+          {
+            "values": [
+              {
+                "text": "Agradecemos o contato."
+              },
+              {
+                "text": "Agradecemos por nos escolher."
+              }
+            ],
+            "response_type": "text",
+            "selection_policy": "random"
+          },
+          {
+            "values": [
+              {
+                "text": "O Laboratório Health agradece seu contato."
+              },
+              {
+                "text": "O Laboratório Health agradece sua fidelidade."
+              }
+            ],
+            "response_type": "text",
+            "selection_policy": "random"
+          }
+        ]
+      },
+      "parent": "node_1_1680045951954",
+      "next_step": {
+        "behavior": "jump_to",
+        "selector": "body",
+        "dialog_node": "node_3_1680796100702"
+      },
+      "conditions": "@sim-nao:nao",
+      "dialog_node": "node_8_1680737461598",
+      "previous_sibling": "node_6_1680737280835"
+    }
+  ],
+  "counterexamples": [],
+  "system_settings": {
+    "disambiguation": {
+      "prompt": "Você quis dizer:",
+      "enabled": true,
+      "randomize": true,
+      "max_suggestions": 5,
+      "suggestion_text_policy": "title",
+      "none_of_the_above_prompt": "Nenhuma das anteriores",
+      "use_connect_to_support_prompt": "Connect to support",
+      "single_answer_clarification_prompt": "Something else"
+    },
+    "human_agent_assist": {
+      "prompt": "Você quis dizer:"
+    },
+    "intent_classification": {
+      "training_backend_version": "v2"
+    }
+  },
+  "learning_opt_out": false,
+  "language": "pt-br",
+  "description": "atendimento consulta",
+  "name": "Verde-dialog"
+}
